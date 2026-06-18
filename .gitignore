@@ -1,0 +1,39 @@
+# Entornos virtuales
+venv/
+env/
+.venv/
+
+# Variables de entorno
+.env
+
+# Base de datos local
+db.sqlite3
+*.sqlite3
+
+# Archivos compilados de Python
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Migraciones generadas automáticamente que no quieras versionar (opcional, normalmente SÍ se versionan)
+# */migrations/*.py
+# !*/migrations/__init__.py
+
+# Archivos estáticos recolectados (collectstatic)
+staticfiles/
+static_root/
+
+# Archivos subidos por usuarios
+media/
+
+# Configuración de editores/IDE
+.vscode/
+.idea/
+*.swp
+
+# Sistema operativo
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log

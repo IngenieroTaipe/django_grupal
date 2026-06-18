@@ -1,0 +1,79 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="card hero">
+    <h1 class="hero-title">Bienvenido a nuestra Tienda</h1>
+    <p class="hero-subtitle">
+        Una demostración limpia y clásica de una aplicación web construida con Django 5.x 
+        siguiendo el patrón MTV (Modelo-Plantilla-Vista).
+    </p>
+    <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+        <a href="{% url 'productos:catalogo' %}" class="btn">
+            <i data-lucide="shopping-bag" style="width: 18px; height: 18px;"></i>
+            Ver Catálogo
+        </a>
+        <a href="https://docs.djangoproject.com/en/5.0/" target="_blank" class="btn btn-secondary">
+            <i data-lucide="book-open" style="width: 18px; height: 18px;"></i>
+            Django Docs
+        </a>
+    </div>
+
+    <!-- Dashboard Stats -->
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-value">{{ total_productos }}</div>
+            <div class="stat-label">Productos</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value">${{ promedio_precio|floatformat:2 }}</div>
+            <div class="stat-label">Precio Promedio</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value">{{ num_visitas }}</div>
+            <div class="stat-label">Visitas esta Sesión</div>
+        </div>
+    </div>
+</div>
+
+<div class="section-header">
+    <h2 class="section-title">Novedades Recientes</h2>
+    <a href="{% url 'productos:catalogo' %}" style="color: var(--primary-blue); text-decoration: none; font-weight: 600; display: inline-flex; align-items: center; gap: 0.25rem; font-size: 0.95rem;">
+        Ver catálogo completo
+        <i data-lucide="arrow-right" style="width: 16px; height: 16px;"></i>
+    </a>
+</div>
+
+<div class="catalog-grid">
+    {% for producto in ultimos_productos %}
+    <div class="product-card">
+        <div class="product-img-container">
+            {% if producto.imagen_url %}
+                <img src="{{ producto.imagen_url }}" alt="{{ producto.nombre }}" class="product-img">
+            {% else %}
+                <div style="width:100%; height:100%; display:flex; align-items:center; justify-content:center; background:#f3f4f6; color:var(--text-muted);">
+                    <i data-lucide="image-off" style="width:32px; height:32px;"></i>
+                </div>
+            {% endif %}
+            <div class="product-price-badge">${{ producto.precio|floatformat:2 }}</div>
+        </div>
+        <div class="product-content">
+            <h3 class="product-title">{{ producto.nombre|title }}</h3>
+            <p class="product-description">{{ producto.descripcion|truncatewords:15 }}</p>
+            <div class="product-footer">
+                <div>
+                    <i data-lucide="calendar" style="width:12px; height:12px; vertical-align:middle; margin-right: 0.2rem;"></i>
+                    <span>{{ producto.fecha_creacion|date:"d M, Y" }}</span>
+                </div>
+                <div>ID: #{{ producto.id }}</div>
+            </div>
+        </div>
+    </div>
+    {% empty %}
+    <div class="card" style="grid-column: 1 / -1; text-align: center; padding: 3rem;">
+        <i data-lucide="box" style="width:40px; height:40px; color: var(--text-muted); margin-bottom: 1rem;"></i>
+        <h3>No hay productos registrados</h3>
+        <p style="color: var(--text-muted);">Carga la base de datos para ver los elementos del catálogo.</p>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

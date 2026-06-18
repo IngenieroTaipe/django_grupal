@@ -1,0 +1,50 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="section-header">
+    <div>
+        <h1 class="section-title">Catálogo de Productos</h1>
+    </div>
+    <div style="font-size: 0.95rem; color: var(--text-muted);">
+        Total: <strong>{{ total_total }}</strong> productos
+    </div>
+</div>
+
+<div class="catalog-grid">
+    {% for producto in productos %}
+    <div class="product-card">
+        <div class="product-img-container">
+            {% if producto.imagen_url %}
+                <img src="{{ producto.imagen_url }}" alt="{{ producto.nombre }}" class="product-img">
+            {% else %}
+                <div style="width:100%; height:100%; display:flex; align-items:center; justify-content:center; background:#f3f4f6; color:var(--text-muted);">
+                    <i data-lucide="image-off" style="width:32px; height:32px;"></i>
+                </div>
+            {% endif %}
+            <div class="product-price-badge">${{ producto.precio|floatformat:2 }}</div>
+        </div>
+        <div class="product-content">
+            <h3 class="product-title">{{ producto.nombre|title }}</h3>
+            <p class="product-description">{{ producto.descripcion }}</p>
+            <div class="product-footer">
+                <div>
+                    <i data-lucide="calendar" style="width:12px; height:12px; vertical-align:middle; margin-right: 0.2rem;"></i>
+                    <span>{{ producto.fecha_creacion|date:"d M, Y" }}</span>
+                </div>
+                <div>ID: #{{ producto.id }}</div>
+            </div>
+        </div>
+    </div>
+    {% empty %}
+    <div class="card" style="grid-column: 1 / -1; text-align: center; padding: 3rem;">
+        <i data-lucide="box" style="width:40px; height:40px; color: var(--text-muted); margin-bottom: 1rem;"></i>
+        <h3>El catálogo está vacío</h3>
+        <p style="color: var(--text-muted); margin-bottom: 1.5rem;">Actualmente no hay productos cargados en el sistema.</p>
+        <a href="{% url 'productos:home' %}" class="btn">
+            <i data-lucide="home" style="width:18px; height:18px;"></i>
+            Volver al Inicio
+        </a>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

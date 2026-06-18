@@ -1,0 +1,317 @@
+# Tienda - Django
+
+> **Laboratorio 09A · IS093A · Semana 11 · UNCP — Facultad de Ingeniería de Sistemas**
+
+Aplicación web funcional desarrollada con **Django 5.x** aplicando el patrón **MTV (Model-Template-View)**. Simula un catálogo de productos tecnológicos con estilo limpio en tonos blanco, negro, azul y rojo.
+
+---
+
+## 👥 Equipo de Trabajo
+
+| #   | Integrante     | Rol Técnico                     |
+| --- | -------------- | ------------------------------- |
+| 1   | **Barja**      | Arquitecto Django               |
+| 2   | **Yauri**      | Desarrollador de Vistas         |
+| 3   | **Toribio**    | Ingeniero de Plantillas         |
+| 4   | **Sulluchuco** | QA & ORM Validator              |
+| 5   | **Navarro**    | Documentación & Soporte General |
+
+---
+
+## 📂 Estructura del Proyecto
+
+```
+django_mtv_app/
+│
+├── .venv/
+├── db.sqlite3
+├── manage.py
+├── README.md
+│
+├── tienda_proyecto/
+│   ├── settings.py
+│   ├── urls.py
+│   └── wsgi.py
+│
+└── productos/
+    ├── migrations/
+    │   └── 0001_initial.py
+    ├── templates/
+    │   ├── base.html
+    │   ├── home.html
+    │   └── catalogo.html
+    ├── models.py
+    ├── views.py
+    ├── urls.py
+    ├── admin.py
+    └── apps.py
+```
+
+---
+
+## 🧑‍💻 Asignación por Integrante
+
+---
+
+### 1. Barja — Arquitecto Django
+
+**Archivos bajo su responsabilidad:**
+
+- `tienda_proyecto/settings.py`
+- `tienda_proyecto/urls.py`
+- `productos/urls.py`
+- `productos/apps.py`
+
+**Lo que trabajó:**
+
+- Inicializó el proyecto con `django-admin startproject` y la app con `startapp`.
+- Registró `'productos'` en `INSTALLED_APPS`.
+- Configuró el enrutamiento principal incluyendo las rutas de la app con `include()`.
+- Definió las URLs locales con `app_name = 'productos'`, dos rutas nombradas (`home`, `catalogo`) y reversibilidad mediante `{% url %}`.
+
+**Qué puede mejorar o tocar:**
+
+- Agregar `LANGUAGE_CODE = 'es-pe'` y `TIME_ZONE = 'America/Lima'` en `settings.py` para localización correcta.
+- Separar variables sensibles (como `SECRET_KEY`) a un archivo `.env` usando `python-decouple`.
+- Añadir una ruta para el panel de administración con datos de ejemplo pre-cargados.
+- Considerar un prefijo `/api/` si en el futuro se extiende a REST.
+
+---
+
+### 2. Yauri — Desarrollador de Vistas
+
+**Archivos bajo su responsabilidad:**
+
+- `productos/views.py`
+
+**Lo que trabajó:**
+
+- Implementó la **FBV** `home(request)`: renderiza `home.html` con un contador de visitas usando `request.session`.
+- Implementó la **CBV** `ProductoListView(ListView)`: lista productos, ordena el queryset por precio y pasa contexto personalizado mediante `get_context_data()`.
+- Añadió lógica de sembrado automático: si la base de datos está vacía al visitar el sitio, inserta 5 productos de prueba.
+
+**Qué puede mejorar o tocar:**
+
+- Agregar manejo de excepciones (`try/except`) en la FBV para errores de sesión.
+- En la CBV, filtrar productos con `stock__gt=0` y ordenar por precio ascendente usando `queryset = Producto.objects.filter(stock__gt=0).order_by('precio')`.
+- Agregar una vista de detalle `ProductoDetailView` para `/catalogo/<pk>/` como extensión opcional.
+- Usar `get_object_or_404` en caso de implementar vistas de detalle.
+
+---
+
+### 3. Toribio — Ingeniero de Plantillas
+
+**Archivos bajo su responsabilidad:**
+
+- `productos/templates/base.html`
+- `productos/templates/home.html`
+- `productos/templates/catalogo.html`
+
+**Lo que trabajó:**
+
+- Diseñó `base.html` con estructura responsiva (header, nav, main, footer), estilos en línea (blanco/negro/azul/rojo) y bloques `{% block title %}` y `{% block content %}`.
+- Implementó herencia en `home.html` y `catalogo.html` con `{% extends 'base.html' %}`.
+- Usó filtros de plantillas: `|title` (capitalización), `|date:"d M, Y"` (fecha legible), `|floatformat:2` (precios con 2 decimales).
+- Implementó loop `{% for producto in object_list %}` con condicional `{% if producto.stock == 0 %}` para mostrar "Agotado".
+- Usó `{% url 'productos:home' %}` y `{% url 'productos:catalogo' %}` en la navegación.
+
+**Qué puede mejorar o tocar:**
+
+- Mover los estilos CSS a un archivo estático (`productos/static/productos/style.css`) y cargarlos con `{% load static %}`.
+- Agregar un bloque `{% block extra_css %}` en `base.html` para estilos específicos por página.
+- Añadir paginación en `catalogo.html` usando `{% if is_paginated %}`.
+- Mejorar el mensaje vacío `{% empty %}` con un ícono o imagen descriptiva.
+
+---
+
+### 4. Sulluchuco — QA & ORM Validator
+
+**Archivos bajo su responsabilidad:**
+
+- `productos/models.py`
+- `productos/migrations/`
+- `productos/admin.py`
+- `productos/tests.py`
+
+**Lo que trabajó:**
+
+- Definió el modelo `Producto` con los campos requeridos: `nombre`, `precio`, `categoria`, `stock`, `creado_en`.
+- Ejecutó `makemigrations` y `migrate` para aplicar el esquema en SQLite.
+- Verificó el proyecto con `python manage.py check` (sin errores ni advertencias).
+- Registró el modelo en `admin.py` para gestión desde el panel de Django Admin.
+
+**Qué puede mejorar o tocar:**
+
+- Implementar `__str__` en el modelo retornando el `nombre` del producto para el admin shell.
+- Agregar validación con `MinValueValidator(0)` en el campo `precio`.
+- Escribir al menos un test básico en `tests.py` con `TestCase` que valide la creación de un producto.
+- Registrar el modelo en admin con `@admin.register(Producto)` y clase `ModelAdmin` personalizada (campos listados, búsqueda, filtros por categoría).
+
+**QuerySets utilizados:**
+
+```python
+# QuerySet 1 — Todos los productos ordenados por fecha de creación (descendente)
+# Usado en ProductoListView como queryset base
+Producto.objects.all().order_by('-creado_en')
+
+# QuerySet 2 — Productos con stock disponible, ordenados por precio
+# Usado para filtrar el catálogo visible al cliente
+Producto.objects.filter(stock__gt=0).order_by('precio')
+```
+
+> **Lazy evaluation:** Los QuerySets en Django **no ejecutan** la consulta SQL al momento de definirse. La consulta real a la base de datos ocurre únicamente cuando el resultado se evalúa: al iterar con `for`, al llamar `list()`, al acceder por índice, o al usar `len()`. Esto permite encadenar filtros y ordenamientos sin costo adicional de consultas intermedias.
+
+---
+
+### 5. Navarro — Documentación & Soporte General
+
+**Archivos bajo su responsabilidad:**
+
+- `README.md`
+- `.gitignore`
+- Revisión transversal de todos los archivos del equipo
+
+**Lo que trabajó:**
+
+- Redactó la documentación del proyecto (este archivo).
+- Configuró el `.gitignore` para excluir `.venv/`, `db.sqlite3`, `__pycache__/`, `.env` y `*.pyc`.
+- Apoyó en la verificación final (`python manage.py check`) y validación de que ambas rutas renderizan sin errores 500/404.
+- Tomó capturas del catálogo renderizado y de la estructura de carpetas para el entregable.
+
+**Qué puede mejorar o tocar:**
+
+- Completar el diagrama MTV en este README (ver sección siguiente).
+- Agregar instrucciones de despliegue en producción (Gunicorn + WhiteNoise para estáticos).
+- Documentar los QuerySets con ejemplos de salida esperada.
+- Agregar una sección de capturas de pantalla embebidas en el README.
+
+---
+
+## 🔄 Diagrama MTV — Flujo de una Petición
+
+```
+Cliente (Navegador)
+        │
+        │  HTTP Request GET /catalogo/
+        ▼
+┌─────────────────────┐
+│   urls.py (Router)  │  tienda_proyecto/urls.py → productos/urls.py
+│   path('catalogo/') │  Identifica la vista responsable
+└────────┬────────────┘
+         │
+         ▼
+┌─────────────────────────┐
+│  View (ProductoListView) │  productos/views.py
+│  CBV - ListView          │  Consulta el Model, prepara contexto
+└────────┬────────────────┘
+         │
+         ▼
+┌─────────────────────┐
+│   Model (Producto)  │  productos/models.py
+│   ORM QuerySet      │  Producto.objects.filter(stock__gt=0)
+└────────┬────────────┘
+         │  datos
+         ▼
+┌─────────────────────────┐
+│  Template (catalogo.html)│  productos/templates/
+│  Herencia de base.html   │  Renderiza HTML con datos reales
+└────────┬────────────────┘
+         │
+         ▼
+   HTTP Response
+ (HTML al navegador)
+```
+
+---
+
+## 🚀 Pasos para Ejecutar la Aplicación
+
+### Requisitos previos
+
+- Python 3.10 o superior instalado
+- Git (opcional, para clonar el repositorio)
+
+### 1. Clonar o descomprimir el proyecto
+
+```bash
+# Opción A: desde GitHub
+git clone <url-del-repositorio>
+cd django_mtv_app
+
+# Opción B: desde ZIP
+# Descomprimir y abrir la carpeta del proyecto
+```
+
+### 2. Crear y activar el entorno virtual
+
+```bash
+# Crear entorno virtual
+python -m venv .venv
+
+# Activar en Windows (PowerShell)
+.\.venv\Scripts\Activate.ps1
+
+# Activar en Windows (CMD)
+.venv\Scripts\activate.bat
+
+# Activar en Linux / macOS
+source .venv/bin/activate
+```
+
+### 3. Instalar dependencias
+
+```bash
+pip install "django>=5.0,<6.0"
+```
+
+### 4. Aplicar migraciones
+
+```bash
+python manage.py makemigrations
+python manage.py migrate
+```
+
+### 5. Verificar que el proyecto esté limpio
+
+```bash
+python manage.py check
+# Salida esperada: System check identified no issues (0 silenced).
+```
+
+### 6. (Opcional) Crear superusuario para el Admin
+
+```bash
+python manage.py createsuperuser
+```
+
+### 7. Ejecutar el servidor de desarrollo
+
+```bash
+python manage.py runserver
+```
+
+### 8. Abrir en el navegador
+
+| URL                               | Descripción                                    |
+| --------------------------------- | ---------------------------------------------- |
+| `http://127.0.0.1:8000/`          | Página de inicio (FBV con contador de visitas) |
+| `http://127.0.0.1:8000/catalogo/` | Catálogo de productos (CBV ListView)           |
+| `http://127.0.0.1:8000/admin/`    | Panel de administración Django                 |
+
+> **Nota:** Al visitar el sitio por primera vez con la base de datos vacía, se insertan automáticamente 5 productos de prueba.
+
+---
+
+## 📋 Rúbrica de Evaluación — Laboratorio 09A
+
+| Criterio                                                  | Peso | Responsable |
+| --------------------------------------------------------- | ---- | ----------- |
+| Configuración Django correcta (MTV, apps, settings, urls) | 20%  | Barja       |
+| Vistas FBV + CBV funcionales con contexto válido          | 20%  | Yauri       |
+| Plantillas con herencia, bloques, tags y filtros          | 20%  | Toribio     |
+| Modelo definido, migraciones aplicadas, ORM queries       | 25%  | Sulluchuco  |
+| Documentación, validación técnica y trabajo colaborativo  | 15%  | Navarro     |
+
+---
+
+_2026 IS093A · Django MTV · UNCP — Facultad de Ingeniería de Sistemas_
