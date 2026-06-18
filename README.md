@@ -149,17 +149,77 @@ django_mtv_app/
 
 **QuerySets utilizados:**
 
-```python
-# QuerySet 1 — Todos los productos ordenados por fecha de creación (descendente)
-# Usado en ProductoListView como queryset base
-Producto.objects.all().order_by('-creado_en')
+Este proyecto utiliza el ORM de Django para interactuar con la base de datos SQLite. A continuación se documentan los QuerySets reales empleados en la aplicación con su consulta SQL generada y su salida de ejemplo:
 
-# QuerySet 2 — Productos con stock disponible, ordenados por precio
-# Usado para filtrar el catálogo visible al cliente
-Producto.objects.filter(stock__gt=0).order_by('precio')
-```
+#### 1. Consulta del Catálogo Completo
+*   **Código Python:**
+    ```python
+    # En ProductoListView (se obtiene implícitamente por el genérico ListView)
+    Producto.objects.all()
+    ```
+    *Nota: El ordenamiento se realiza automáticamente de forma descendente por `fecha_creacion` gracias a la clase `Meta` del modelo.*
+*   **SQL Equivalente:**
+    ```sql
+    SELECT "productos_producto"."id", "productos_producto"."nombre", "productos_producto"."descripcion", "productos_producto"."precio", "productos_producto"."fecha_creacion", "productos_producto"."imagen_url" FROM "productos_producto" ORDER BY "productos_producto"."fecha_creacion" DESC;
+    ```
+*   **Salida Esperada (Seed Data):**
+    ```python
+    <QuerySet [
+        <Producto: Lámpara de Escritorio Negra>,
+        <Producto: Monitor de Oficina FHD 24">,
+        <Producto: Ratón Óptico Rojo Gamer>,
+        <Producto: Auriculares de Diadema Azul>,
+        <Producto: Teclado Mecánico Clásico>
+    ]>
+    ```
 
-> **Lazy evaluation:** Los QuerySets en Django **no ejecutan** la consulta SQL al momento de definirse. La consulta real a la base de datos ocurre únicamente cuando el resultado se evalúa: al iterar con `for`, al llamar `list()`, al acceder por índice, o al usar `len()`. Esto permite encadenar filtros y ordenamientos sin costo adicional de consultas intermedias.
+#### 2. Obtención de los últimos 3 productos recientes
+*   **Código Python (usado en la vista `home`):**
+    ```python
+    Producto.objects.order_by('-fecha_creacion')[:3]
+    ```
+*   **SQL Equivalente:**
+    ```sql
+    SELECT "productos_producto"."id", "productos_producto"."nombre", "productos_producto"."descripcion", "productos_producto"."precio", "productos_producto"."fecha_creacion", "productos_producto"."imagen_url" FROM "productos_producto" ORDER BY "productos_producto"."fecha_creacion" DESC LIMIT 3;
+    ```
+*   **Salida Esperada:**
+    ```python
+    <QuerySet [
+        <Producto: Lámpara de Escritorio Negra>,
+        <Producto: Monitor de Oficina FHD 24">,
+        <Producto: Ratón Óptico Rojo Gamer>
+    ]>
+    ```
+
+#### 3. Conteo de Productos
+*   **Código Python:**
+    ```python
+    Producto.objects.count()
+    ```
+*   **SQL Equivalente:**
+    ```sql
+    SELECT COUNT(*) AS "__count" FROM "productos_producto";
+    ```
+*   **Salida Esperada:**
+    ```python
+    5
+    ```
+
+#### 4. Promedio de Precios de los Productos
+*   **Código Python (usado en la vista `home`):**
+    ```python
+    Producto.objects.aggregate(Avg('precio'))['precio__avg']
+    ```
+*   **SQL Equivalente:**
+    ```sql
+    SELECT AVG("productos_producto"."precio") AS "precio__avg" FROM "productos_producto";
+    ```
+*   **Salida Esperada:**
+    ```python
+    94.876
+    ```
+
+> **Lazy evaluation (Evaluación Perezosa):** Los QuerySets en Django **no ejecutan** la consulta SQL al momento de definirse. La consulta real a la base de datos ocurre únicamente cuando el resultado se evalúa: al iterar con `for`, al llamar `list()`, al acceder por índice, o al usar `len()`. Esto permite encadenar filtros y ordenamientos sin costo adicional de consultas intermedias.
 
 ---
 
@@ -208,7 +268,7 @@ Cliente (Navegador)
          ▼
 ┌─────────────────────┐
 │   Model (Producto)  │  productos/models.py
-│   ORM QuerySet      │  Producto.objects.filter(stock__gt=0)
+│   ORM QuerySet      │  Producto.objects.all()
 └────────┬────────────┘
          │  datos
          ▼
