@@ -55,21 +55,21 @@ django_mtv_app/
 
 ### 1. Barja — Arquitecto Django
 
-**Archivos bajo su responsabilidad:**
+**Archivos bajo responsabilidad:**
 
 - `tienda_proyecto/settings.py`
 - `tienda_proyecto/urls.py`
 - `productos/urls.py`
 - `productos/apps.py`
 
-**Lo que trabajó:**
+**AVANCE:**
 
 - Inicializó el proyecto con `django-admin startproject` y la app con `startapp`.
 - Registró `'productos'` en `INSTALLED_APPS`.
 - Configuró el enrutamiento principal incluyendo las rutas de la app con `include()`.
 - Definió las URLs locales con `app_name = 'productos'`, dos rutas nombradas (`home`, `catalogo`) y reversibilidad mediante `{% url %}`.
 
-**Qué puede mejorar o tocar:**
+**ACCIONES:**
 
 - Agregar `LANGUAGE_CODE = 'es-pe'` y `TIME_ZONE = 'America/Lima'` en `settings.py` para localización correcta.
 - Separar variables sensibles (como `SECRET_KEY`) a un archivo `.env` usando `python-decouple`.
@@ -80,17 +80,17 @@ django_mtv_app/
 
 ### 2. Yauri — Desarrollador de Vistas
 
-**Archivos bajo su responsabilidad:**
+**Archivos bajo responsabilidad:**
 
 - `productos/views.py`
 
-**Lo que trabajó:**
+**AVANCE**
 
 - Implementó la **FBV** `home(request)`: renderiza `home.html` con un contador de visitas usando `request.session`.
 - Implementó la **CBV** `ProductoListView(ListView)`: lista productos, ordena el queryset por precio y pasa contexto personalizado mediante `get_context_data()`.
 - Añadió lógica de sembrado automático: si la base de datos está vacía al visitar el sitio, inserta 5 productos de prueba.
 
-**Qué puede mejorar o tocar:**
+**ACCIONES**
 
 - Agregar manejo de excepciones (`try/except`) en la FBV para errores de sesión.
 - En la CBV, filtrar productos con `stock__gt=0` y ordenar por precio ascendente usando `queryset = Producto.objects.filter(stock__gt=0).order_by('precio')`.
@@ -101,13 +101,13 @@ django_mtv_app/
 
 ### 3. Toribio — Ingeniero de Plantillas
 
-**Archivos bajo su responsabilidad:**
+**Archivos bajo responsabilidad:**
 
 - `productos/templates/base.html`
 - `productos/templates/home.html`
 - `productos/templates/catalogo.html`
 
-**Lo que trabajó:**
+**AVANCE**
 
 - Diseñó `base.html` con estructura responsiva (header, nav, main, footer), estilos en línea (blanco/negro/azul/rojo) y bloques `{% block title %}` y `{% block content %}`.
 - Implementó herencia en `home.html` y `catalogo.html` con `{% extends 'base.html' %}`.
@@ -115,7 +115,7 @@ django_mtv_app/
 - Implementó loop `{% for producto in object_list %}` con condicional `{% if producto.stock == 0 %}` para mostrar "Agotado".
 - Usó `{% url 'productos:home' %}` y `{% url 'productos:catalogo' %}` en la navegación.
 
-**Qué puede mejorar o tocar:**
+**ACCIONES**
 
 - Mover los estilos CSS a un archivo estático (`productos/static/productos/style.css`) y cargarlos con `{% load static %}`.
 - Agregar un bloque `{% block extra_css %}` en `base.html` para estilos específicos por página.
@@ -126,26 +126,27 @@ django_mtv_app/
 
 ### 4. Sulluchuco — QA & ORM Validator
 
-**Archivos bajo su responsabilidad:**
+**Archivos bajo responsabilidad:**
 
 - `productos/models.py`
 - `productos/migrations/`
 - `productos/admin.py`
 - `productos/tests.py`
 
-**Lo que trabajó:**
+**AVANCE**
 
-- Definió el modelo `Producto` con los campos requeridos: `nombre`, `precio`, `categoria`, `stock`, `creado_en`.
-- Ejecutó `makemigrations` y `migrate` para aplicar el esquema en SQLite.
-- Verificó el proyecto con `python manage.py check` (sin errores ni advertencias).
-- Registró el modelo en `admin.py` para gestión desde el panel de Django Admin.
+- Definió el modelo `Producto` con los campos: `nombre`, `descripcion`, `precio`, `fecha_creacion` (`auto_now_add`) e `imagen_url`.
+- Implementó `__str__` retornando el `nombre` y `Meta` con `ordering = ['-fecha_creacion']`.
+- Agregó validación `MinValueValidator(0)` en `precio` y generó la migración `0002_alter_producto_precio`.
+- Escribió una **suite de 13 tests** en `tests.py` (`TestCase`): persistencia del modelo, `__str__`, validación de precio (negativo/cero), ordenamiento, agregación `Avg`, _lazy evaluation_ de QuerySets y smoke tests de las vistas `home`/`catalogo`.
+- Registró el modelo en `admin.py` con `@admin.register(Producto)` y `ModelAdmin` personalizado (`list_display`, `list_filter`, `search_fields`, `ordering`).
+- Verificó el proyecto con `python manage.py check` (sin errores) y `python manage.py test` (**13 tests, OK**).
 
-**Qué puede mejorar o tocar:**
+**ACCIONES**
 
-- Implementar `__str__` en el modelo retornando el `nombre` del producto para el admin shell.
-- Agregar validación con `MinValueValidator(0)` en el campo `precio`.
-- Escribir al menos un test básico en `tests.py` con `TestCase` que valide la creación de un producto.
-- Registrar el modelo en admin con `@admin.register(Producto)` y clase `ModelAdmin` personalizada (campos listados, búsqueda, filtros por categoría).
+- Mantener la cobertura de tests al alta cada vez que se agreguen campos o vistas nuevas.
+- Considerar `coverage.py` para medir el porcentaje de cobertura del código.
+- Evaluar agregar un campo `stock` (con `PositiveIntegerField`) si el catálogo lo requiere a futuro.
 
 **QuerySets utilizados:**
 
@@ -225,20 +226,20 @@ Este proyecto utiliza el ORM de Django para interactuar con la base de datos SQL
 
 ### 5. Navarro — Documentación & Soporte General
 
-**Archivos bajo su responsabilidad:**
+**Archivos bajo responsabilidad:**
 
 - `README.md`
 - `.gitignore`
 - Revisión transversal de todos los archivos del equipo
 
-**Lo que trabajó:**
+**AVANCE**
 
 - Redactó la documentación del proyecto (este archivo).
 - Configuró el `.gitignore` para excluir `.venv/`, `db.sqlite3`, `__pycache__/`, `.env` y `*.pyc`.
 - Apoyó en la verificación final (`python manage.py check`) y validación de que ambas rutas renderizan sin errores 500/404.
 - Tomó capturas del catálogo renderizado y de la estructura de carpetas para el entregable.
 
-**Qué puede mejorar o tocar:**
+**ACCIONES**
 
 - Completar el diagrama MTV en este README (ver sección siguiente).
 - Agregar instrucciones de despliegue en producción (Gunicorn + WhiteNoise para estáticos).
@@ -373,5 +374,3 @@ python manage.py runserver
 | Documentación, validación técnica y trabajo colaborativo  | 15%  | Navarro     |
 
 ---
-
-_2026 IS093A · Django MTV · UNCP — Facultad de Ingeniería de Sistemas_

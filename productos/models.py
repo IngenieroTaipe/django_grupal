@@ -1,9 +1,15 @@
+from django.core.validators import MinValueValidator
 from django.db import models
 
 class Producto(models.Model):
     nombre = models.CharField(max_length=150, verbose_name="Nombre del Producto")
     descripcion = models.TextField(blank=True, verbose_name="Descripción")
-    precio = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="Precio")
+    precio = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        validators=[MinValueValidator(0)],
+        verbose_name="Precio",
+    )
     fecha_creacion = models.DateTimeField(auto_now_add=True, verbose_name="Fecha de Creación")
     imagen_url = models.URLField(blank=True, null=True, verbose_name="URL de Imagen")
 
