@@ -135,17 +135,18 @@ django_mtv_app/
 
 **AVANCE**
 
-- Definió el modelo `Producto` con los campos requeridos: `nombre`, `precio`, `categoria`, `stock`, `creado_en`.
-- Ejecutó `makemigrations` y `migrate` para aplicar el esquema en SQLite.
-- Verificó el proyecto con `python manage.py check` (sin errores ni advertencias).
-- Registró el modelo en `admin.py` para gestión desde el panel de Django Admin.
+- Definió el modelo `Producto` con los campos: `nombre`, `descripcion`, `precio`, `fecha_creacion` (`auto_now_add`) e `imagen_url`.
+- Implementó `__str__` retornando el `nombre` y `Meta` con `ordering = ['-fecha_creacion']`.
+- Agregó validación `MinValueValidator(0)` en `precio` y generó la migración `0002_alter_producto_precio`.
+- Escribió una **suite de 13 tests** en `tests.py` (`TestCase`): persistencia del modelo, `__str__`, validación de precio (negativo/cero), ordenamiento, agregación `Avg`, _lazy evaluation_ de QuerySets y smoke tests de las vistas `home`/`catalogo`.
+- Registró el modelo en `admin.py` con `@admin.register(Producto)` y `ModelAdmin` personalizado (`list_display`, `list_filter`, `search_fields`, `ordering`).
+- Verificó el proyecto con `python manage.py check` (sin errores) y `python manage.py test` (**13 tests, OK**).
 
 **ACCIONES**
 
-- Implementar `__str__` en el modelo retornando el `nombre` del producto para el admin shell.
-- Agregar validación con `MinValueValidator(0)` en el campo `precio`.
-- Escribir al menos un test básico en `tests.py` con `TestCase` que valide la creación de un producto.
-- Registrar el modelo en admin con `@admin.register(Producto)` y clase `ModelAdmin` personalizada (campos listados, búsqueda, filtros por categoría).
+- Mantener la cobertura de tests al alta cada vez que se agreguen campos o vistas nuevas.
+- Considerar `coverage.py` para medir el porcentaje de cobertura del código.
+- Evaluar agregar un campo `stock` (con `PositiveIntegerField`) si el catálogo lo requiere a futuro.
 
 **QuerySets utilizados:**
 
