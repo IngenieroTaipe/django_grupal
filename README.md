@@ -43,7 +43,13 @@ django_mtv_app/
     ├── models.py
     ├── views.py
     ├── urls.py
+    ├── api_urls.py
+    ├── api_views.py
+    ├── serializers.py
     ├── admin.py
+    ├── management/
+    │   └── commands/
+    │       └── seed.py
     └── apps.py
 ```
 
@@ -251,36 +257,36 @@ Este proyecto utiliza el ORM de Django para interactuar con la base de datos SQL
 ## 🔄 Diagrama MTV — Flujo de una Petición
 
 ```
-Cliente (Navegador)
-        │
-        │  HTTP Request GET /catalogo/
-        ▼
-┌─────────────────────┐
-│   urls.py (Router)  │  tienda_proyecto/urls.py → productos/urls.py
-│   path('catalogo/') │  Identifica la vista responsable
-└────────┬────────────┘
+    Web (Navegador)
+         │
+         │  HTTP GET /catalogo/
+         ▼
+┌───────────────────────┐         API (Cliente o Servicio)
+│   urls.py (Router)    │              │
+│ tienda_proyecto/urls.py              │  HTTP GET /api/products/
+│  -> productos/urls.py |              ▼
+└────────┬──────────────┘    ┌─────────────────────────┐
+         │                   │  API URLs (/api/)       │
+         ▼                   │  productos/api_urls.py  │
+┌─────────────────────────┐  └────────┬────────────────┘
+│  View (ProductoListView)│           │
+│  productos/views.py     │           ▼
+└────────┬────────────────┘   ┌──────────────────────────┐
+         │                    │  API View (List/Retrieve)│
+         ▼                    │  productos/api_views.py  │
+┌──────────────────────┐      └─────────┬────────────────┘
+│   Model (Producto)   │                │
+│   productos/models.py│                ▼
+└────────┬─────────────┘       ┌──────────────────────────┐
+         │ datos               │  Serializer: Producto    │
+         ▼                     │  productos/serializers.py│
+┌──────────────────────────┐   └────────┬─────────────────┘
+│  Template (catalogo.html)│            │
+│  productos/templates/    │            ▼
+└────────┬─────────────────┘     HTTP Response (JSON)
          │
          ▼
-┌─────────────────────────┐
-│  View (ProductoListView) │  productos/views.py
-│  CBV - ListView          │  Consulta el Model, prepara contexto
-└────────┬────────────────┘
-         │
-         ▼
-┌─────────────────────┐
-│   Model (Producto)  │  productos/models.py
-│   ORM QuerySet      │  Producto.objects.all()
-└────────┬────────────┘
-         │  datos
-         ▼
-┌─────────────────────────┐
-│  Template (catalogo.html)│  productos/templates/
-│  Herencia de base.html   │  Renderiza HTML con datos reales
-└────────┬────────────────┘
-         │
-         ▼
-   HTTP Response
- (HTML al navegador)
+   HTTP Response (HTML al navegador)
 ```
 
 ---
@@ -358,6 +364,8 @@ python manage.py runserver
 | `http://127.0.0.1:8000/`          | Página de inicio (FBV con contador de visitas) |
 | `http://127.0.0.1:8000/catalogo/` | Catálogo de productos (CBV ListView)           |
 | `http://127.0.0.1:8000/admin/`    | Panel de administración Django                 |
+| `http://127.0.0.1:8000/api/products/` | API - lista de productos (JSON)            |
+| `http://127.0.0.1:8000/api/products/<pk>/` | API - detalle de producto (JSON)      |
 
 > **Nota:** Al visitar el sitio por primera vez con la base de datos vacía, se insertan automáticamente 5 productos de prueba.
 
